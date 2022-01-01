@@ -50,8 +50,10 @@ func init() {
         Password:   cnf.Redis.Pass,
         DB:         cnf.Redis.Db,
     })
-    pong, err := client.Ping().Result()
-    logger.Println(pong, err)
+    _, err = client.Ping().Result()
+    if err!=nil {
+        logger.Fatalf("redis连接异常：%v\n",err)
+    }  
     dsn:=fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?loc=Local&parseTime=true", cnf.MySQL.User, cnf.MySQL.Pass, cnf.MySQL.Host, cnf.MySQL.Port, cnf.MySQL.Db)
     //fmt.Println("Data Source Name: ",dsn)
     Db,err=sql.Open("mysql",dsn)
