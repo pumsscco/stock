@@ -1,16 +1,15 @@
 ---
 listen:
-  host: localhost
   port: 55756
 mysql:
   db: stock
-  host: localhost
+  host: mysql
   port: 3306
   user: stock
   pass: zTwa2mhCZCfQMqX7eQix
 redis:
-  host: localhost
+  host: redis
   port: 6379
   db: 6
   pass: pFG64SBbhGB56K8Cv5eZbrdQ
-logfile: stock.log
+logfile: logs/stock.log
