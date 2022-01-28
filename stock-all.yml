@@ -1,0 +1,104 @@
+---
+#第一步，先创建stock专用pv
+#+里面放只放应用日志
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: stock-pv
+  labels:
+    app: stock
+spec:
+  capacity:
+    storage: 300Mi
+  accessModes:
+  - ReadWriteOnce
+  - ReadOnlyMany
+  #persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: 192.168.30.218
+    path: /data/pv/cpluto/stock
+---
+#第二步，再创建专用pvc
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: stock-all
+  namespace: cpluto
+spec:
+  resources:
+    requests:
+      storage: 300Mi
+  selector:
+    matchLabels:
+      app: stock
+  accessModes:
+  - ReadWriteOnce
+---
+#第三步，创建普通应用的部署集
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock
+  namespace: cpluto
+  labels:
+    app: stock
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: stock
+  template:
+    metadata:
+      labels:
+        app: stock
+    spec:
+      containers:
+      - name: stock
+        image: harbor.ceibsonline.cn:5000/cpluto/stock:1.7.5
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 150m
+            memory: 150Mi
+        livenessProbe:
+          tcpSocket:
+            port: 55756
+        readinessProbe:
+          tcpSocket:
+            port: 55756
+          initialDelaySeconds: 3
+          periodSeconds: 5
+        ports:
+        - containerPort: 55756
+        volumeMounts:
+        - mountPath: "/app/logs"
+          name: stock
+          subPathExpr: $(POD_NAME)
+      imagePullSecrets:
+      - name: ceibsonline
+      volumes:
+      - name: stock
+        persistentVolumeClaim:
+          claimName: stock-all
+---
+#第四步，创建服务
+apiVersion: v1
+kind: Service
+metadata:
+  name: stock
+  namespace: cpluto
+spec:
+  type: NodePort
+  ports:
+  - port: 55756
+    protocol: TCP
+    targetPort: 55756
+    nodePort: 30056
+  selector:
+    app: stock
