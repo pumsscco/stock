@@ -1,5 +1,5 @@
 insert into `stock`
 (`date`,`code`,`name`,`operation`,`volume`,`balance`,`price`,`turnover`,`amount`,`brokerage`,`stamps`,`transfer_fee`)
 values 
-('2022-08-04', '600649', '城投控股', '股息入账', 0, 40900, 3.97, 4499, 4499, 0, 0, 0);
+('2022-08-11', '601789', '宁波建工', '证券卖出', -4200, 77200, 5.04, 21168, 21141.32, 5.29, 21.17, 0.22);
 
