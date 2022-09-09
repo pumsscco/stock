@@ -1,10 +1,6 @@
 package main
 
 import (
-//	"fmt"
-//	"reflect"
-//	"net/http"
-//	"time"
 	"sort"
 )
 type Clear struct {

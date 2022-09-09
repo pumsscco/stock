@@ -58,28 +58,3 @@ func newDeal(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		createDeal(w,r)
 	}
 }
-/*
-//敌人明细
-func enemyType(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	routeMapEnemy := map[string]string{
-		"male": "男性", "female": "女性", "other": "其它",
-	}
-	enemys := getEnemyType(routeMapEnemy[ps.ByName("Type")])
-	generateHTML(w, &enemys, "layout", "navbar", "enemy")
-}
-//任务
-func mission(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	missions := getMission()
-	generateHTML(w, &missions, "layout", "navbar", "mission")
-}
-//角色初始信息
-func role(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	roles := getRoleMan()
-	generateHTML(w, &roles, "layout", "navbar", "role")
-}
-
-//组合技
-func comboSkill(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	combos := getCombo()
-	generateHTML(w, &combos, "layout", "navbar", "combo")
-}*/

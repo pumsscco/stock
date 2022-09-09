@@ -50,18 +50,3 @@ type ByCost []Hold
 func (a ByCost) Len() int { return len(a) }
 func (a ByCost) Less(i, j int) bool { return a[i].Amount < a[j].Amount }
 func (a ByCost) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-/*
-//以更好看的方式，显示全部的百分比数值
-func perDisp(f float32) (fs string) {
-	fs = fmt.Sprintf("%.2f", f)
-	for {
-		hasDot, TrailZero := strings.Contains(fs, "."), strings.HasSuffix(fs, "0")
-		if !TrailZero || !hasDot {
-			break
-		} else {
-			fs = strings.TrimSuffix(fs, "0")
-			fs = strings.TrimSuffix(fs, ".")
-		}
-	}
-	return
-}*/
