@@ -6,31 +6,38 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mx-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/name-list">
-            单股票明细
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            清仓股票
           </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="/cs/new">打新收益</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/cs/short">短线收益</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/cs/long">中长线分析</a>
+          </div>
         </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/hold-last-deal">
-          持仓股票的最新买卖记录
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/clearance">
-          清仓股票分析
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/position">
-          持仓股票分析
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/add">
-          新增单条记录
-        </a>
-      </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            持仓股票
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="/hs/operation">最新操作</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/hs/cost">最新成本分析</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            其它功能
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="/other/single">单股票明细</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/other/add">新增单条记录</a>
+          </div>
+        </li>
     </ul>
   </div>
 </nav>
