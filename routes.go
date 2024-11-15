@@ -58,3 +58,21 @@ func newDeal(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		createDeal(w,r)
 	}
 }
+//打新交易记录
+func newStock(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	//获得排行方案
+	t:=ps.ByName("Type")
+	if r.Method=="GET" {
+		generateHTML(w, nil, "layout", "navbar", "sort-ns")
+	// 按排行方案罗列统计结果
+	} else if r.Method=="POST" {
+		deals := DealListSort(t, r.PostFormValue("kind"))
+		if t=="cb" {
+			generateHTML(w, &deals, "layout", "navbar", "ns/cb")
+		} else if t=="main" {
+			generateHTML(w, &deals, "layout", "navbar", "ns/main")
+		}
+		
+	}
+}
+

@@ -2,6 +2,8 @@ package main
 
 import (
 	"time"
+	"encoding/json"
+	"fmt"
 )
 //完整的交易记录结构
 type Stock struct {
@@ -50,3 +52,40 @@ type ByCost []Hold
 func (a ByCost) Len() int { return len(a) }
 func (a ByCost) Less(i, j int) bool { return a[i].Amount < a[j].Amount }
 func (a ByCost) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+//获取股票的代码列表，为了简单起见，不增加复杂的条件，仅分清仓与持仓两类(kind:  clear/hold)
+func getCodeList(kind string) (codes []string) {
+	//先尝试从redis中抓取清仓股票的代码列表，如果不成，再查数据库！
+	key:=fmt.Sprintf("stock:%s:codes",kind)
+	val, err := client.Get(key).Result()
+	if err == nil {
+        json.Unmarshal([]byte(val),&codes)
+		return
+	} else {
+		errinfo:=fmt.Sprintf("get %s stock code list from redis error: %s",kind,err)
+        logger.Println(errinfo)
+    }
+	var sql string
+	//从数据库中查结果
+	if kind=="clear" {
+		sql="select distinct code from stock group by code having sum(volume)=0 order by code"
+	} else if kind=="hold" {
+		sql="select distinct code from stock group by code having sum(volume)!=0 order by code"
+	}
+	rows, _ := Db.Query(sql)
+	for rows.Next() {
+		c:=""
+		rows.Scan(&c)
+		codes = append(codes, c)
+	}
+	rows.Close()
+	//写入redis，下次加速
+	s,err:=json.Marshal(codes)
+    if err!=nil {
+		errinfo:=fmt.Sprintf("get %s stock code list serialize error: %s",kind,err)
+        logger.Println(errinfo)
+    } else {
+        client.Set(key, string(s), 75*time.Hour)
+    }
+    return
+}

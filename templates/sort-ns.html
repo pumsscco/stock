@@ -1,0 +1,17 @@
+{{ define "content" }}
+<form action="/ns/{{ .Type }}" method="post">
+  <div class="form-row align-items-center justify-content-center">
+    <div class="col-auto my-1">
+      <select class="custom-select mr-sm-2" id="kind" name="kind">
+        <option selected>请选择排序方案</option>
+        <option value="profit">净利润</option>
+        <option value="profit-daily">日均利润</option>
+        <option value="hold-day">持股天数</option>
+      </select>
+    </div>
+    <div class="col-auto my-1">
+      <button type="submit" class="btn btn-primary">提交</button>
+    </div>
+  </div>
+</form>
+{{ end }}

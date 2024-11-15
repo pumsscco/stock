@@ -1,7 +1,10 @@
 -- 清仓股票的代码列表
-select distinct code from stock group by code having sum(volume)=0;
+select distinct code from stock group by code having sum(volume)=0 order by code;
+-- 持仓股票的代码列表
+select distinct code from stock group by code having sum(volume)!=0 order by code;
 -- 清仓股票中的打新部分
-select `name`,code from stock where code in (select distinct code from stock group by code having sum(volume)=0) and operation='申购中签' order by code;
+select code from stock where code in (select distinct code from stock group by code having sum(volume)=0) and operation='申购中签' order by code;
+
 /*打新部分，可能还要细化，按以下的股票代码分类，分成5类，或者简单些，分成3类，也可以
 */
 -- A股代码分类
