@@ -10,6 +10,7 @@
       <th>最后交易</th>
       <th>持股天数</th>
       <th>净利润</th>
+      <th>利润率</th>
       <th>日均利润</th>
     </tr>
   </thead>
@@ -18,10 +19,11 @@
     <tr>
       <td>{{ .Code }}</td>
       <td>{{ .Name }}</td>
-      <td>{{ .FirstDealDay | fdate }}</td>
-      <td>{{ .LastDealDay | fdate  }}</td>
+      <td>{{ .FirstDay | fdate }}</td>
+      <td>{{ .LastDay | fdate  }}</td>
       <td>{{ .HoldDays }}</td>
-      <td>{{ .Amount }}</td>
+      <td>{{ .Profit }}</td>
+      <td>{{ .ProfitPer | printf "%.3f"  }}</td>
       <td>{{ .AvgDailyProfit | printf "%.3f" }}</td>
     </tr>
     {{ end }}

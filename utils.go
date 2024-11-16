@@ -22,7 +22,7 @@ type Stats struct {
 	Amount,TransactionFreq  float32
 }
 //依据可能的条件，获得代码与最新名称的映射
-func getNameMap(cond string) map[string]string {
+func getNameMapOld(cond string) map[string]string {
 	//先拿代码列表
 	sql:="select distinct code from stock "+cond
 	codes:=[]string{}
@@ -43,6 +43,18 @@ func getNameMap(cond string) map[string]string {
 	}
 	return names
 }
+//新版本的代码与名称映射，不依据查询条件，而是直接依赖代码列表来
+func getNameMapNew(codes []string) (names map[string]string) {
+	//拿最新名字列表
+	sql:="select name from stock where code=? order by date desc"
+	for _,c:=range codes {
+		name:=""
+		Db.QueryRow(sql,c).Scan(&name)
+		names[c]=name
+	}
+	return names
+}
+/*
 type ByProfitReverse []Clear
 func (a ByProfitReverse) Len() int { return len(a) }
 func (a ByProfitReverse) Less(i, j int) bool { return a[i].Amount > a[j].Amount }
@@ -52,7 +64,11 @@ type ByCost []Hold
 func (a ByCost) Len() int { return len(a) }
 func (a ByCost) Less(i, j int) bool { return a[i].Amount < a[j].Amount }
 func (a ByCost) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-
+*/
+type ByProfitReverseNS []NewShare
+func (a ByProfitReverseNS) Len() int { return len(a) }
+func (a ByProfitReverseNS) Less(i, j int) bool { return a[i].Profit > a[j].Profit }
+func (a ByProfitReverseNS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 //获取股票的代码列表，为了简单起见，不增加复杂的条件，仅分清仓与持仓两类(kind:  clear/hold)
 func getCodeList(kind string) (codes []string) {
 	//先尝试从redis中抓取清仓股票的代码列表，如果不成，再查数据库！

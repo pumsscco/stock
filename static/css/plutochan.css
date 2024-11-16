@@ -12,8 +12,11 @@ caption {
 .dropdown-item:hover>.dropdown-menu {
   display: block;
 }
-html {
+/*html {
   font-size: 10px;
+}*/
+html {
+  font-size: fc-3;
 }
 /*
 .water {
