@@ -28,7 +28,7 @@ func index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 //交易记录
 func dealList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		if r.Method=="GET" {
-			names:=getNameMap("")
+			names:=getNameMapOld("")
 			generateHTML(w, &names, "layout", "navbar", "name-list")
 		} else if r.Method=="POST" {
 			deals := getDealList(r.PostFormValue("code"))
@@ -60,13 +60,16 @@ func newDeal(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 //打新交易记录
 func newStock(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	//获得排行方案
+	//获得打新类别的子类
 	t:=ps.ByName("Type")
 	if r.Method=="GET" {
-		generateHTML(w, nil, "layout", "navbar", "sort-ns")
+		generateHTML(w, t, "layout", "navbar", "sort-ns")
 	// 按排行方案罗列统计结果
 	} else if r.Method=="POST" {
-		deals := DealListSort(t, r.PostFormValue("kind"))
+		//获得排行方案
+		sortMethod:=r.PostFormValue("kind")
+		//logger.Println("sort method: ", sortMethod)
+		deals := getNewShareStats(t, sortMethod)
 		if t=="cb" {
 			generateHTML(w, &deals, "layout", "navbar", "ns/cb")
 		} else if t=="main" {

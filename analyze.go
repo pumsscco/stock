@@ -13,7 +13,7 @@ type Clears struct {
 }
 //清仓类
 func getClearance()(clears Clears) {
-	clearStocks:=getNameMap("group by code having sum(volume)=0")
+	clearStocks:=getNameMapOld("group by code having sum(volume)=0")
 	for k,v:=range clearStocks {
 		clear:=Clear{}
 		//第一步：先拿到净利润、首末交易日期、持股天数、日均利润
@@ -50,7 +50,7 @@ type Holds struct {
 }
 //持仓类
 func getPosition()(holds Holds) {
-	holdStocks:=getNameMap("group by code having sum(volume)!=0")
+	holdStocks:=getNameMapOld("group by code having sum(volume)!=0")
 	for k,v:=range holdStocks {
 		hold:=Hold{}
 		//第一步：先拿到总成本、首次及最近交易日期、持股天数、持仓量、计算平均成本

@@ -13,11 +13,13 @@ type NewShare struct {
 	HoldDays int
 	//amount的总和，为正则是利润，为负则是成本
 	Profit  float32
-	ProfitPer  float32  //利润率
+	ProfitRate  float32  //利润率
+	ProfitPct  string  //以百分比显示的利润率
 	AvgDailyProfit float32
 }
 type NewShares struct {
 	Profits float32
+	SortMethod string
 	NewShareList []NewShare
 }
 //打新类的代码列表，分可转债与主板两类
@@ -56,20 +58,21 @@ func NewShareCodes(kind string) (codes []string) {
     }
 	return
 }
-//打新类的完整统计信息
+//打新类的完整统计信息,种类分主板与可转债两种，排序方法分利润、日均利润、利润率三种
 func getNewShareStats(kind,sortMethod string)(newShares NewShares) {
 	//先尝试从redis中抓取打新股票的代码列表，如果不成，再查数据库！
-	key:=fmt.Sprintf("stock:clear:stats:sort:%s:%s",kind,sortMethod)
+	key:=fmt.Sprintf("stock:new-share:stats:sort:%s:%s",kind,sortMethod)
 	val, err := client.Get(key).Result()
 	if err == nil {
 		json.Unmarshal([]byte(val),&newShares)
 		return
 	} else {
-		errinfo:=fmt.Sprintf("get clear stock stats list of %s from redis error: %s",kind,err)
+		errinfo:=fmt.Sprintf("get cleared new share stats list of %s sorting %s from redis error: %s",kind,sortMethod, err)
 		logger.Println(errinfo)
 	}
 	//先依类别，抓代码列表，再抓最新的名称与代码的映射
 	newShareCodes:=NewShareCodes(kind)
+	//logger.Println("newShare codes: ", newShareCodes)
 	newShareMaps:=getNameMapNew(newShareCodes)
 	//然后统计数据
 	for k,v:=range newShareMaps {
@@ -90,16 +93,27 @@ func getNewShareStats(kind,sortMethod string)(newShares NewShares) {
 		sql=`select turnover from stock where code=? and operation='申购中签'`
 		var cost float32
 		Db.QueryRow(sql,k).Scan(&cost)
-		newShare.ProfitPer=(newShare.Profit-cost)/cost*100%
-		newShare.Code=k
-		newShare.Name=v
-		newShares.Profits+=newShare.Profit
+		newShare.ProfitRate = newShare.Profit / cost 
+		newShare.ProfitPct = fmt.Sprintf("%s%%", perDisp(float32(newShare.ProfitRate*100)))
+		newShare.Code = k
+		newShare.Name = v
+		newShares.Profits += newShare.Profit
 		newShares.NewShareList=append(newShares.NewShareList,newShare)
 	}
-	sort.Sort(ByProfitReverseNS(newShares.NewShareList))
-	s,err:=json.Marshal(codes)
+	switch sortMethod {
+	case "profit":
+		newShares.SortMethod="净利润"
+		sort.Sort(ByProfitReverseNS(newShares.NewShareList))
+	case "profit-daily":
+		newShares.SortMethod="日均利润"
+		sort.Sort(ByProfitDailyReverseNS(newShares.NewShareList))
+	case "profit-rate":
+		newShares.SortMethod="利润率"
+		sort.Sort(ByProfitRateReverseNS(newShares.NewShareList))
+	}
+	s,err:=json.Marshal(newShares)
     if err!=nil {
-		errinfo:=fmt.Sprintf("get clear stock code list of %s serialize error: %s",kind,err)
+		errinfo:=fmt.Sprintf("set cleared new share stats list of %s sorting %s serialize error: %s",kind,sortMethod, err)
         logger.Println(errinfo)
     } else {
         client.Set(key, string(s), 75*time.Hour)

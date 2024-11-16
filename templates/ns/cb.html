@@ -1,5 +1,5 @@
 {{ define "content" }}
-<h3>可转债打新总收益：{{ .Profits }}，下表为各股票明细</h3>
+<h3>可转债打新总收益：{{ .Profits }}，下表为各股票明细，按 {{ .SortMethod }} 排行</h3>
 <table class="table table-bordered table-striped table-hover">
   <caption>可转债打新收益分析</caption>
   <thead class="thead-dark">
@@ -15,7 +15,7 @@
     </tr>
   </thead>
   <tbody>
-    {{ range .ClearList }}
+    {{ range .NewShareList }}
     <tr>
       <td>{{ .Code }}</td>
       <td>{{ .Name }}</td>
@@ -23,7 +23,7 @@
       <td>{{ .LastDay | fdate  }}</td>
       <td>{{ .HoldDays }}</td>
       <td>{{ .Profit }}</td>
-      <td>{{ .ProfitPer | printf "%.3f"  }}</td>
+      <td>{{ .ProfitPct  }}</td>
       <td>{{ .AvgDailyProfit | printf "%.3f" }}</td>
     </tr>
     {{ end }}

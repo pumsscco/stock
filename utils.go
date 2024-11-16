@@ -4,6 +4,7 @@ import (
 	"time"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 //完整的交易记录结构
 type Stock struct {
@@ -44,17 +45,19 @@ func getNameMapOld(cond string) map[string]string {
 	return names
 }
 //新版本的代码与名称映射，不依据查询条件，而是直接依赖代码列表来
-func getNameMapNew(codes []string) (names map[string]string) {
+func getNameMapNew(codes []string) map[string]string {
 	//拿最新名字列表
+	names:=make(map[string]string)
 	sql:="select name from stock where code=? order by date desc"
 	for _,c:=range codes {
 		name:=""
 		Db.QueryRow(sql,c).Scan(&name)
 		names[c]=name
 	}
+	//logger.Println("codes name map: ", names)
 	return names
 }
-/*
+
 type ByProfitReverse []Clear
 func (a ByProfitReverse) Len() int { return len(a) }
 func (a ByProfitReverse) Less(i, j int) bool { return a[i].Amount > a[j].Amount }
@@ -64,11 +67,21 @@ type ByCost []Hold
 func (a ByCost) Len() int { return len(a) }
 func (a ByCost) Less(i, j int) bool { return a[i].Amount < a[j].Amount }
 func (a ByCost) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-*/
+
 type ByProfitReverseNS []NewShare
 func (a ByProfitReverseNS) Len() int { return len(a) }
 func (a ByProfitReverseNS) Less(i, j int) bool { return a[i].Profit > a[j].Profit }
 func (a ByProfitReverseNS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+type ByProfitDailyReverseNS []NewShare
+func (a ByProfitDailyReverseNS) Len() int { return len(a) }
+func (a ByProfitDailyReverseNS) Less(i, j int) bool { return a[i].AvgDailyProfit > a[j].AvgDailyProfit }
+func (a ByProfitDailyReverseNS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+type ByProfitRateReverseNS []NewShare
+func (a ByProfitRateReverseNS) Len() int { return len(a) }
+func (a ByProfitRateReverseNS) Less(i, j int) bool { return a[i].ProfitRate > a[j].ProfitRate }
+func (a ByProfitRateReverseNS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 //获取股票的代码列表，为了简单起见，不增加复杂的条件，仅分清仓与持仓两类(kind:  clear/hold)
 func getCodeList(kind string) (codes []string) {
 	//先尝试从redis中抓取清仓股票的代码列表，如果不成，再查数据库！
@@ -104,4 +117,19 @@ func getCodeList(kind string) (codes []string) {
         client.Set(key, string(s), 75*time.Hour)
     }
     return
+}
+
+//以更好看的方式，显示全部的百分比数值
+func perDisp(f float32) (fs string) {
+	fs = fmt.Sprintf("%.2f", f)
+	for {
+		hasDot, TrailZero := strings.Contains(fs, "."), strings.HasSuffix(fs, "0")
+		if !TrailZero || !hasDot {
+			break
+		} else {
+			fs = strings.TrimSuffix(fs, "0")
+			fs = strings.TrimSuffix(fs, ".")
+		}
+	}
+	return
 }

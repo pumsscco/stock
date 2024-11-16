@@ -19,7 +19,7 @@ func getDealList(code string) (stocks []Stock) {
 	return
 }
 func getHoldLastDeal() (stocks []Stock) {
-	codeMap:=getNameMap("group by code having sum(volume)!=0")
+	codeMap:=getNameMapOld("group by code having sum(volume)!=0")
 	codes:=[]string{}
 	for k, _ := range codeMap {
 		codes=append(codes,k)
