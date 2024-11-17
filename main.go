@@ -72,13 +72,13 @@ func main() {
     router.POST("/ns/:Type", newStock) //选择好排序方式后，再给出最终结论
     router.GET("/cs/:Type", normalStock) //普通清仓股
     router.POST("/cs/:Type", normalStock) //同样要排序，复杂的多
-    /*router.GET("/name-list", dealList)
-    router.POST("/name-list", dealList)
-    router.GET("/hold-last-deal", holdLastDeal)
-    router.GET("/clearance", clearance)
-    router.GET("/position", position)
-    router.GET("/add", newDeal)
-    router.POST("/add", newDeal)*/
+    router.GET("/hs/operation", holdLastDeal) //持仓股的最新交易
+    router.GET("/hs/cost", position) // 持仓股的成本分析
+    router.GET("/other/single", dealList)  //获得股票名称列表
+    router.POST("/other/single", dealList) //依据单一代码，获取其全部交易明细
+    
+    router.GET("/other/add", newDeal)   //新增记录表单
+    router.POST("/other/add", newDeal)  //新记录入库
 
     log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d",cnf.Listen.Host,cnf.Listen.Port),router))
 }

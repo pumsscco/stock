@@ -28,32 +28,27 @@ func index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 //交易记录
 func dealList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		if r.Method=="GET" {
-			names:=getNameMapOld("")
-			generateHTML(w, &names, "layout", "navbar", "name-list")
+			names:=getNameMap(getCodeList("all"))
+			generateHTML(w, &names, "layout", "navbar", "other/name")
 		} else if r.Method=="POST" {
 			deals := getDealList(r.PostFormValue("code"))
-			generateHTML(w, &deals, "layout", "navbar", "deal-list")
+			generateHTML(w, &deals, "layout", "navbar", "other/deal")
 		}
 }
 //持仓股票最新买卖记录
 func holdLastDeal(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	sums := getHoldLastDeal()
-	generateHTML(w, &sums, "layout", "navbar", "deal-list")
-}
-//清仓记录
-func clearance(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	clears := getClearance()
-	generateHTML(w, &clears, "layout", "navbar", "clearance")
+	generateHTML(w, &sums, "layout", "navbar", "hs/operation")
 }
 //持仓统计
 func position(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	positions := getPosition()
-	generateHTML(w, &positions, "layout", "navbar", "position")
+	positions := getPositionStats()
+	generateHTML(w, &positions, "layout", "navbar", "hs/cost")
 }
 //新增交易记录
 func newDeal(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	if r.Method=="GET" {
-		generateHTML(w, nil, "layout", "navbar", "add")
+		generateHTML(w, nil, "layout", "navbar", "other/add")
 	} else if r.Method=="POST" {
 		createDeal(w,r)
 	}
@@ -68,15 +63,10 @@ func newStock(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	} else if r.Method=="POST" {
 		//获得排行方案
 		deals := getNewShareStats(t, r.PostFormValue("kind"))
-		if t=="cb" {
-			generateHTML(w, &deals, "layout", "navbar", "ns/cb")
-		} else if t=="main" {
-			generateHTML(w, &deals, "layout", "navbar", "ns/main")
-		}
-		
+		generateHTML(w, &deals, "layout", "navbar", "ns/stats")	
 	}
 }
-//打新清仓统计分析
+//普通清仓统计分析
 func normalStock(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	//获得打新类别的子类
 	t:=ps.ByName("Type")
@@ -86,7 +76,7 @@ func normalStock(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	} else if r.Method=="POST" {
 		//获得排行方案
 		deals := getNormClearStats(t, r.PostFormValue("kind"))
-		generateHTML(w, &deals, "layout", "navbar", "cs/clearance")
+		generateHTML(w, &deals, "layout", "navbar", "cs/stats")
 		
 	}
 }

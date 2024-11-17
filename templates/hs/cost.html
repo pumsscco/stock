@@ -1,7 +1,7 @@
 {{ define "content" }}
 <h3>持仓股票总成本：{{ .Costs | printf "%.2f" }}，为负正常，为正说明已通过交易获利</h3>
 <table class="table table-sm table-bordered table-striped table-hover">
-  <caption>持仓股票分析</caption>
+  <caption>持仓股票成本分析</caption>
   <thead class="thead-dark">
     <tr>
       <th>代码</th>
@@ -23,8 +23,8 @@
     <tr>
       <td>{{ .Code }}</td>
       <td>{{ .Name }}</td>
-      <td>{{ .FirstDealDay | fdate }}</td>
-      <td>{{ .LastDealDay | fdate }}</td>
+      <td>{{ .FirstDay | fdate }}</td>
+      <td>{{ .LastDay | fdate }}</td>
       <td>{{ .HoldDays }}</td>
       <td>{{ .Balance }}</td>
       <td>{{ .Amount }}</td>

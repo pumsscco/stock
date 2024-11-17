@@ -7,20 +7,6 @@ import (
 	"fmt"
 	"encoding/json"
 )
-type NewShare struct {
-	Code,Name string
-	FirstDay,LastDay time.Time
-	HoldDays int
-	Profit  float32
-	ProfitRate  float32  //利润率
-	ProfitPct  string  //以百分比显示的利润率
-	AvgDailyProfit float32
-}
-type NewShares struct {
-	Profits float32
-	SortMethod string
-	NewShareList []NewShare
-}
 //打新类的代码列表，分可转债与主板两类
 func getNewShareCodes(kind string) (codes []string) {
 	//先尝试从redis中抓取打新股票的代码列表，如果不成，再查数据库！
@@ -72,7 +58,7 @@ func getNewShareStats(kind,sortMethod string)(newShares NewShares) {
 	//先依类别，抓代码列表，再抓最新的名称与代码的映射
 	newShareCodes:=getNewShareCodes(kind)
 	//logger.Println("newShare codes: ", newShareCodes)
-	newShareMaps:=getNameMapNew(newShareCodes)
+	newShareMaps:=getNameMap(newShareCodes)
 	var sql1,sql2 string
 	sql1=`
 		select sum(amount),min(date),max(date),datediff(max(date),min(date)),
@@ -114,6 +100,12 @@ func getNewShareStats(kind,sortMethod string)(newShares NewShares) {
 	case "profit-rate":
 		newShares.SortMethod="利润率"
 		sort.Sort(ByProfitRateReverseNS(newShares.NewShareList))
+	}
+	switch kind {
+	case "cb":
+		newShares.Kind="可转债"
+	case "main":
+		newShares.Kind="主板"
 	}
 	s,err:=json.Marshal(newShares)
     if err!=nil {

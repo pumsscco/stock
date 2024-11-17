@@ -14,38 +14,60 @@ type Stock struct {
 	Volume, Balance     int    //数量、变动后持股数量
 	Price, Turnover, Amount,Brokerage,Stamps,TransferFee    float32    //均价、成交金额、发生金额、佣金、印花税、过户费
 }
-//公共统计结构
+// 持仓统计结构
 type Stats struct {
-	Code,Name string
-	FirstDealDay,LastDealDay,MaxBalanceDay time.Time
-	HoldDays,MaxBalance,TransactionCount int
-	//amount的总和，为正则是利润，为负则是成本
-	Amount,TransactionFreq  float32
+	Base
+	Senior
+	Amount float32
 }
-//依据可能的条件，获得代码与最新名称的映射
-func getNameMapOld(cond string) map[string]string {
-	//先拿代码列表
-	sql:="select distinct code from stock "+cond
-	codes:=[]string{}
-	rows, _ := Db.Query(sql)
-	for rows.Next() {
-		c:=""
-		rows.Scan(&c)
-		codes = append(codes, c)
-	}
-	rows.Close()
-	//再拿最新名字列表
-	sql="select name from stock where code=? order by date desc"
-	names:=make(map[string]string)
-	for _,c:=range codes {
-		name:=""
-		Db.QueryRow(sql,c).Scan(&name)
-		names[c]=name
-	}
-	return names
+//最基础统计字段
+type Base struct {
+	Code, Name                               string
+	FirstDay, LastDay time.Time
+	HoldDays int
+}
+type Senior struct {
+	MaxBalanceDay time.Time
+	MaxBalance, TransactionCount   int
+	TransactionFreq float32
+}
+type Clear struct {
+	Profit            float32
+	ProfitRate        float32 //利润率
+	ProfitPct         string  //以百分比显示的利润率
+	AvgDailyProfit    float32
+}
+type NewShare struct {
+	Base
+	Clear
+}
+type NewShares struct {
+	Profits          float32
+	Kind, SortMethod string
+	NewShareList     []NewShare
+}
+
+type Hold struct {
+	Stats
+	Balance int
+	AvgCost float32
+}
+type Holds struct {
+	Costs    float32
+	HoldList []Hold
+}
+
+type NormClear struct {
+	NewShare
+	Senior
+}
+type NormClears struct {
+	Profits            float32
+	SortMethod, Period string
+	NormClearList      []NormClear
 }
 //新版本的代码与名称映射，不依据查询条件，而是直接依赖代码列表来
-func getNameMapNew(codes []string) map[string]string {
+func getNameMap(codes []string) map[string]string {
 	//拿最新名字列表
 	names:=make(map[string]string)
 	sql:="select name from stock where code=? order by date desc"
@@ -57,12 +79,7 @@ func getNameMapNew(codes []string) map[string]string {
 	//logger.Println("codes name map: ", names)
 	return names
 }
-//原先的两种排序方案
-type ByProfitReverse []Clear
-func (a ByProfitReverse) Len() int { return len(a) }
-func (a ByProfitReverse) Less(i, j int) bool { return a[i].Amount > a[j].Amount }
-func (a ByProfitReverse) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-
+//持仓成本排序方案保持不变
 type ByCost []Hold
 func (a ByCost) Len() int { return len(a) }
 func (a ByCost) Less(i, j int) bool { return a[i].Amount < a[j].Amount }

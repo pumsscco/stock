@@ -1,7 +1,7 @@
 {{ define "content" }}
-<h3>可转债打新总收益：{{ .Profits }}，下表为各股票统计，按 {{ .SortMethod }} 排行</h3>
+<h3>{{ .Kind }}打新总收益：{{ .Profits }}，下表为各股票统计，按 {{ .SortMethod }} 排行</h3>
 <table class="table table-bordered table-striped table-hover">
-  <caption>可转债打新收益分析</caption>
+  <caption>{{ .Kind }}打新收益分析</caption>
   <thead class="thead-dark">
     <tr>
       <th>代码</th>
