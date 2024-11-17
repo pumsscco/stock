@@ -6,22 +6,6 @@ import (
 	"fmt"
 	"encoding/json"
 )
-type NormClear struct {
-	Code,Name string
-	FirstDay,LastDay time.Time
-	Profit  float32
-	ProfitRate  float32  //利润率
-	ProfitPct  string  //以百分比显示的利润率
-	AvgDailyProfit float32
-	MaxBalanceDay time.Time
-	HoldDays,MaxBalance,TransactionCount int
-	TransactionFreq  float32
-}
-type NormClears struct {
-	Profits float32
-	SortMethod, Period string
-	NormClearList []NormClear
-}
 //普通清仓股票代码列表, 按短中长来分（kind: short/medium/long)
 func getNormClearCodes(kind string) (codes []string) {
 	//先尝试从redis中抓取打新股票的代码列表，如果不成，再查数据库！
@@ -75,7 +59,7 @@ func getNormClearStats(kind,sortMethod string)(normClears NormClears) {
 	}
 	//先依类别，抓代码列表，再抓最新的名称与代码的映射
 	normClearCodes:=getNormClearCodes(kind)
-	normClearMaps:=getNameMapNew(normClearCodes)
+	normClearMaps:=getNameMap(normClearCodes)
 	var sql1,sql2,sql3,sql4 string
 	sql1=`
 		select sum(amount),min(date),max(date),datediff(max(date),min(date)),

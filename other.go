@@ -7,7 +7,45 @@ import (
 	"math"
 	"strconv"
 	"unicode/utf8"
+	"fmt"
+	"encoding/json"
 )
+//列出指定代码的股票的全部交易记录，按时间逆序
+func getDealList(code string) (stocks []Stock) {
+	//先尝试从redis中抓取持仓股票的最新交易记录，如果不成，再查数据库！
+	key:=fmt.Sprintf("stock:deal:list:%s",code)
+	val, err := client.Get(key).Result()
+	if err == nil {
+		json.Unmarshal([]byte(val),&stocks)
+		return
+	} else {
+		errinfo:=fmt.Sprintf("get stock deals of %s from redis error: %s",code,err)
+		logger.Println(errinfo)
+	}
+	sql := `
+		select date,code,name,operation,volume,balance,
+		price,turnover,amount,brokerage,stamps,transfer_fee from stock where code=? order by date desc
+    `
+	rows, _ := Db.Query(sql,code)
+	for rows.Next() {
+		s := Stock{}
+		rows.Scan(
+			&s.Date,&s.Code,&s.Name,&s.Operation,&s.Volume,&s.Balance,
+			&s.Price,&s.Turnover,&s.Amount,&s.Brokerage,&s.Stamps,&s.TransferFee,
+		)
+		stocks = append(stocks, s)
+	}
+	rows.Close()
+	s,err:=json.Marshal(stocks)
+    if err!=nil {
+		errinfo:=fmt.Sprintf("set stock deals of %s serialize error: %s",code,err)
+        logger.Println(errinfo)
+    } else {
+        client.Set(key, string(s), 75*time.Hour)
+    }
+	return
+}
+
 //新增一条记录
 func createDeal(w http.ResponseWriter, r *http.Request) {
     err := r.ParseForm()
@@ -33,8 +71,8 @@ func createDeal(w http.ResponseWriter, r *http.Request) {
 	if date.Before(first) || date.After(time.Now()) {
 		errors+="交易日期必须在2007年10月24日与今天之间\n"
 	}
-	if match, _ := regexp.MatchString(`(6|0|3)\d{5}`, code); !match {
-		errors+="股票代码必须为6位数字，且以6/0/3之一开头\n"
+	if match, _ := regexp.MatchString(`(1|6|0|3)\d{5}`, code); !match {
+		errors+="股票代码必须为6位数字，且以1/6/0/3之一开头\n"
 	}
 	if len(name)<7 && (len(name)-utf8.RuneCountInString(name)>=4) {
 		errors+="股票名称的长度不少于7，且中文不得少于2个（中文为3个字符）\n"
