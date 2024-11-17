@@ -57,7 +57,7 @@ func getNameMapNew(codes []string) map[string]string {
 	//logger.Println("codes name map: ", names)
 	return names
 }
-
+//原先的两种排序方案
 type ByProfitReverse []Clear
 func (a ByProfitReverse) Len() int { return len(a) }
 func (a ByProfitReverse) Less(i, j int) bool { return a[i].Amount > a[j].Amount }
@@ -67,7 +67,7 @@ type ByCost []Hold
 func (a ByCost) Len() int { return len(a) }
 func (a ByCost) Less(i, j int) bool { return a[i].Amount < a[j].Amount }
 func (a ByCost) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-
+//新股的三种排序方案
 type ByProfitReverseNS []NewShare
 func (a ByProfitReverseNS) Len() int { return len(a) }
 func (a ByProfitReverseNS) Less(i, j int) bool { return a[i].Profit > a[j].Profit }
@@ -82,7 +82,43 @@ type ByProfitRateReverseNS []NewShare
 func (a ByProfitRateReverseNS) Len() int { return len(a) }
 func (a ByProfitRateReverseNS) Less(i, j int) bool { return a[i].ProfitRate > a[j].ProfitRate }
 func (a ByProfitRateReverseNS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-//获取股票的代码列表，为了简单起见，不增加复杂的条件，仅分清仓与持仓两类(kind:  clear/hold)
+//普通清仓股的七种排序方案
+type ByProfitReverseCS []NormClear
+func (a ByProfitReverseCS) Len() int { return len(a) }
+func (a ByProfitReverseCS) Less(i, j int) bool { return a[i].Profit > a[j].Profit }
+func (a ByProfitReverseCS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+type ByProfitDailyReverseCS []NormClear
+func (a ByProfitDailyReverseCS) Len() int { return len(a) }
+func (a ByProfitDailyReverseCS) Less(i, j int) bool { return a[i].AvgDailyProfit > a[j].AvgDailyProfit }
+func (a ByProfitDailyReverseCS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+type ByProfitRateReverseCS []NormClear
+func (a ByProfitRateReverseCS) Len() int { return len(a) }
+func (a ByProfitRateReverseCS) Less(i, j int) bool { return a[i].ProfitRate > a[j].ProfitRate }
+func (a ByProfitRateReverseCS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+
+type ByHoldDayCS []NormClear
+func (a ByHoldDayCS) Len() int { return len(a) }
+func (a ByHoldDayCS) Less(i, j int) bool { return a[i].HoldDays > a[j].HoldDays }
+func (a ByHoldDayCS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+type ByMaxBalanceCS []NormClear
+func (a ByMaxBalanceCS) Len() int { return len(a) }
+func (a ByMaxBalanceCS) Less(i, j int) bool { return a[i].MaxBalance > a[j].MaxBalance }
+func (a ByMaxBalanceCS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+type ByTransCountCS []NormClear
+func (a ByTransCountCS) Len() int { return len(a) }
+func (a ByTransCountCS) Less(i, j int) bool { return a[i].TransactionCount > a[j].TransactionCount }
+func (a ByTransCountCS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+type ByWeekFreqCS []NormClear
+func (a ByWeekFreqCS) Len() int { return len(a) }
+func (a ByWeekFreqCS) Less(i, j int) bool { return a[i].TransactionFreq > a[j].TransactionFreq }
+func (a ByWeekFreqCS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+//获取股票的代码列表，为了简单起见，不增加复杂的条件，仅分三种，清仓、持仓、全部三类(kind:  clear/hold/all)
 func getCodeList(kind string) (codes []string) {
 	//先尝试从redis中抓取清仓股票的代码列表，如果不成，再查数据库！
 	key:=fmt.Sprintf("stock:%s:codes",kind)
@@ -96,10 +132,13 @@ func getCodeList(kind string) (codes []string) {
     }
 	var sql string
 	//从数据库中查结果
-	if kind=="clear" {
+	switch kind {
+	case "clear":
 		sql="select distinct code from stock group by code having sum(volume)=0 order by code"
-	} else if kind=="hold" {
+	case "hold":
 		sql="select distinct code from stock group by code having sum(volume)!=0 order by code"
+	case "all":
+		sql="select distinct code from stock order by code"
 	}
 	rows, _ := Db.Query(sql)
 	for rows.Next() {

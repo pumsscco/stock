@@ -70,6 +70,8 @@ func main() {
     //以时间逆序列出该股票代码的相关所有交易记录，新增记录成功后，也会重定向到这里
     router.GET("/ns/:Type", newStock) //打新类型简单些分类，就主板（main)与可转债（cb）两类
     router.POST("/ns/:Type", newStock) //选择好排序方式后，再给出最终结论
+    router.GET("/cs/:Type", normalStock) //普通清仓股
+    router.POST("/cs/:Type", normalStock) //同样要排序，复杂的多
     /*router.GET("/name-list", dealList)
     router.POST("/name-list", dealList)
     router.GET("/hold-last-deal", holdLastDeal)

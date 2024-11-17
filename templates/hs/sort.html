@@ -1,0 +1,21 @@
+{{ define "content" }}
+<form action="/cs/{{ . }}" method="post">
+  <div class="d-flex justify-content-center flex-nowrap">
+    <div class="col-auto my-1">
+      <select class="custom-select mr-sm-2 fc-4" id="kind" name="kind">
+        <option selected>请选择排序方案</option>
+        <option value="profit">净利润</option>
+        <option value="profit-daily">日均利润</option>
+        <option value="profit-rate">利润率</option>
+        <option value="hold-day">持股天数</option>
+        <option value="max-balance">最高持仓量</option>
+        <option value="t-count">买卖次数</option>
+        <option value="week-freq">周买卖频率</option>
+      </select>
+    </div>
+    <div class="col-auto my-1">
+      <button type="submit" class="btn btn-primary fc-4">提交</button>
+    </div>
+  </div>
+</form>
+{{ end }}

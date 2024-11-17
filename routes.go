@@ -58,18 +58,16 @@ func newDeal(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		createDeal(w,r)
 	}
 }
-//打新交易记录
+//打新清仓统计分析
 func newStock(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	//获得打新类别的子类
 	t:=ps.ByName("Type")
 	if r.Method=="GET" {
-		generateHTML(w, t, "layout", "navbar", "sort-ns")
+		generateHTML(w, t, "layout", "navbar", "ns/sort")
 	// 按排行方案罗列统计结果
 	} else if r.Method=="POST" {
 		//获得排行方案
-		sortMethod:=r.PostFormValue("kind")
-		//logger.Println("sort method: ", sortMethod)
-		deals := getNewShareStats(t, sortMethod)
+		deals := getNewShareStats(t, r.PostFormValue("kind"))
 		if t=="cb" {
 			generateHTML(w, &deals, "layout", "navbar", "ns/cb")
 		} else if t=="main" {
@@ -78,4 +76,17 @@ func newStock(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		
 	}
 }
-
+//打新清仓统计分析
+func normalStock(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	//获得打新类别的子类
+	t:=ps.ByName("Type")
+	if r.Method=="GET" {
+		generateHTML(w, t, "layout", "navbar", "cs/sort")
+	// 按排行方案罗列统计结果
+	} else if r.Method=="POST" {
+		//获得排行方案
+		deals := getNormClearStats(t, r.PostFormValue("kind"))
+		generateHTML(w, &deals, "layout", "navbar", "cs/clearance")
+		
+	}
+}

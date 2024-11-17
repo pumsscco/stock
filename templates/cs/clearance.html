@@ -1,5 +1,5 @@
 {{ define "content" }}
-<h3>已清仓股票总收益：{{ .Profits }}，下表为各股票明细</h3>
+<h3>已清仓{{ .Period }}普通股票总收益：{{ .Profits }}，下表为各股票统计，按 {{ .SortMethod }} 排行</h3>
 <table class="table table-bordered table-striped table-hover">
   <caption>清仓股票收益分析</caption>
   <thead class="thead-dark">
@@ -11,6 +11,7 @@
       <th>持股天数</th>
       <th>净利润</th>
       <th>日均利润</th>
+      <th>利润率</th>
       <th>最高持仓量</th>
       <th>最高持仓日期</th>
       <th>买卖次数</th>
@@ -18,15 +19,16 @@
     </tr>
   </thead>
   <tbody>
-    {{ range .ClearList }}
+    {{ range .NormClearList }}
     <tr>
       <td>{{ .Code }}</td>
       <td>{{ .Name }}</td>
-      <td>{{ .FirstDealDay | fdate }}</td>
-      <td>{{ .LastDealDay | fdate  }}</td>
+      <td>{{ .FirstDay | fdate }}</td>
+      <td>{{ .LastDay | fdate  }}</td>
       <td>{{ .HoldDays }}</td>
-      <td>{{ .Amount }}</td>
+      <td>{{ .Profit }}</td>
       <td>{{ .AvgDailyProfit | printf "%.3f" }}</td>
+      <td>{{ .ProfitPct }}</td>
       <td>{{ .MaxBalance }}</td>
       <td>{{ .MaxBalanceDay | fdate }}</td>
       <td>{{ .TransactionCount }}</td>

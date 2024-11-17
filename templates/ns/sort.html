@@ -1,8 +1,8 @@
 {{ define "content" }}
 <form action="/ns/{{ . }}" method="post">
-  <div class="form-row align-items-center justify-content-center">
+  <div class="d-flex justify-content-center flex-nowrap">
     <div class="col-auto my-1">
-      <select class="custom-select mr-sm-2 fc-3" id="kind" name="kind">
+      <select class="custom-select mr-sm-2 fc-4" id="kind" name="kind">
         <option selected>请选择排序方案</option>
         <option value="profit">净利润</option>
         <option value="profit-daily">日均利润</option>
@@ -10,7 +10,7 @@
       </select>
     </div>
     <div class="col-auto my-1">
-      <button type="submit" class="btn btn-primary fc-3">提交</button>
+      <button type="submit" class="btn btn-primary fc-4">提交</button>
     </div>
   </div>
 </form>
