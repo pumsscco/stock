@@ -35,6 +35,11 @@ func dealList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			generateHTML(w, &deals, "layout", "navbar", "other/deal")
 		}
 }
+//打新中签统计
+func ipoLot(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	cnts := getNewShareCnt()
+	generateHTML(w, &cnts, "layout", "navbar", "ipo_lot")
+}
 //持仓股票最新买卖记录
 func holdLastDeal(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	sums := getHoldLastDeal()

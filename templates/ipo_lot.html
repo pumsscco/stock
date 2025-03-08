@@ -1,0 +1,22 @@
+{{ define "content" }}
+<h3>统计每年打新中签的股票只数，逆序排列，均无的年份跳过！</h3>
+<table class="table table-bordered table-striped table-hover">
+  <caption>打新中签统计</caption>
+  <thead class="thead-dark">
+    <tr>
+      <th>年份</th>
+      <th>主板</th>
+      <th>可转债</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{ range . }}
+    <tr>
+      <td>{{ .Year }}</td>
+      <td>{{ .Main }}</td>
+      <td>{{ .CB }}</td>
+    </tr>
+    {{ end }}
+  </tbody>
+</table>
+{{ end }}

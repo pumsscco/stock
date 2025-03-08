@@ -23,4 +23,8 @@ select code from stock where code in (select distinct code from stock group by c
 3. 中线：持股时间在1个月以上，半年以下(<=180)
 4. 长线：持股时间在半年以上(>=180)
 */
+--- 可转债只数查询
+SELECT year(date) y ,count(id) FROM `stock` where operation in ('申购中签','配股缴款') and code regexp '^1' group by y;
+-- 主板只数查询
+SELECT year(date) y ,count(id) FROM `stock` where operation in ('申购中签','配股缴款') and code regexp '^[0,3,6,8,9]' group by y;
 
