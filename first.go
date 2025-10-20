@@ -11,7 +11,7 @@ import (
 func getNewShareCodes(kind string) (codes []string) {
 	//先尝试从redis中抓取打新股票的代码列表，如果不成，再查数据库！
 	key:=fmt.Sprintf("stock:new-share:codes:%s",kind)
-	val, err := client.Get(key).Result()
+	val, err := client.Get(ctx, key).Result()
 	if err == nil {
 		json.Unmarshal([]byte(val),&codes)
 		return
@@ -39,7 +39,7 @@ func getNewShareCodes(kind string) (codes []string) {
 		errinfo:=fmt.Sprintf("get clear stock code list of %s serialize error: %s",kind,err)
         logger.Println(errinfo)
     } else {
-        client.Set(key, string(s), 75*time.Hour)
+        client.Set(ctx, key, string(s), 75*time.Hour)
     }
 	return
 }
@@ -47,7 +47,7 @@ func getNewShareCodes(kind string) (codes []string) {
 func getNewShareStats(kind,sortMethod string)(newShares NewShares) {
 	//先尝试从redis中抓取打新股票的代码列表，如果不成，再查数据库！
 	key:=fmt.Sprintf("stock:new-share:stats:sort:%s:%s",kind,sortMethod)
-	val, err := client.Get(key).Result()
+	val, err := client.Get(ctx, key).Result()
 	if err == nil {
 		json.Unmarshal([]byte(val),&newShares)
 		return
@@ -112,7 +112,7 @@ func getNewShareStats(kind,sortMethod string)(newShares NewShares) {
 		errinfo:=fmt.Sprintf("set cleared new share stats list of %s sorting %s serialize error: %s",kind,sortMethod, err)
         logger.Println(errinfo)
     } else {
-        client.Set(key, string(s), 75*time.Hour)
+        client.Set(ctx, key, string(s), 75*time.Hour)
     }
 	return
 }

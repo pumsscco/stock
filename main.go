@@ -1,20 +1,19 @@
 package main
 
 import (
+    "context"
     "fmt"
     "database/sql"
     "log"
     "net/http"
     yaml "gopkg.in/yaml.v2"
-	"github.com/go-redis/redis"
-	"io/ioutil"
+	//"github.com/go-redis/redis"
+    "github.com/redis/go-redis/v9"
+	//"io/ioutil"
     "github.com/julienschmidt/httprouter"
     _ "github.com/go-sql-driver/mysql"
     "os"
 )
-var Db *sql.DB
-var logger *log.Logger
-var client *redis.Client
 type Conf struct {
     Listen struct {
         Host string `yaml:"host"`
@@ -35,10 +34,16 @@ type Conf struct {
     }
 	Logfile string `yaml:"logfile"`
 }
-var cnf Conf
+var (
+    Db *sql.DB
+    logger *log.Logger
+    client *redis.Client
+    cnf Conf
+    ctx = context.Background()
+)
 func init() {
     //抓全部的配置信息
-    yamlBytes, _ := ioutil.ReadFile("config.yml")
+    yamlBytes, _ := os.ReadFile("config.yml")
     yaml.Unmarshal(yamlBytes,&cnf)
     file, err := os.OpenFile(cnf.Logfile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
     if err != nil {
@@ -50,7 +55,7 @@ func init() {
         Password:   cnf.Redis.Pass,
         DB:         cnf.Redis.Db,
     })
-    _, err = client.Ping().Result()
+    _, err = client.Ping(ctx).Result()
     if err!=nil {
         logger.Fatalf("redis连接异常：%v\n",err)
     }  

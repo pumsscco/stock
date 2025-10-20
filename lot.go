@@ -12,7 +12,7 @@ type Cnt struct {
 func getNewShareCnt() (cnts []Cnt) {
 	//先尝试从redis中抓取打新股票的只数统计列表，如果不成，再查数据库！
 	key:=fmt.Sprintf("stock:new-share:count")
-	val, err := client.Get(key).Result()
+	val, err := client.Get(ctx, key).Result()
 	if err == nil {
 		json.Unmarshal([]byte(val),&cnts)
 		return
@@ -64,7 +64,7 @@ func getNewShareCnt() (cnts []Cnt) {
 		errinfo:=fmt.Sprintf("set new share count list to redis error: %s",err)
         logger.Println(errinfo)
     } else {
-        client.Set(key, string(s), 75*time.Hour)
+        client.Set(ctx, key, string(s), 75*time.Hour)
     }
 	return
 }

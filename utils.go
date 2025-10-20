@@ -139,7 +139,7 @@ func (a ByWeekFreqCS) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func getCodeList(kind string) (codes []string) {
 	//先尝试从redis中抓取清仓股票的代码列表，如果不成，再查数据库！
 	key:=fmt.Sprintf("stock:%s:codes",kind)
-	val, err := client.Get(key).Result()
+	val, err := client.Get(ctx, key).Result()
 	if err == nil {
         json.Unmarshal([]byte(val),&codes)
 		return
@@ -170,7 +170,7 @@ func getCodeList(kind string) (codes []string) {
 		errinfo:=fmt.Sprintf("get %s stock code list serialize error: %s",kind,err)
         logger.Println(errinfo)
     } else {
-        client.Set(key, string(s), 75*time.Hour)
+        client.Set(ctx, key, string(s), 75*time.Hour)
     }
     return
 }

@@ -8,7 +8,7 @@ import (
 func getHoldLastDeal() (stocks []Stock) {
 	//先尝试从redis中抓取持仓股票的最新交易记录，如果不成，再查数据库！
 	key:="stock:hold:deal:recent"
-	val, err := client.Get(key).Result()
+	val, err := client.Get(ctx, key).Result()
 	if err == nil {
 		json.Unmarshal([]byte(val),&stocks)
 		return
@@ -50,7 +50,7 @@ func getHoldLastDeal() (stocks []Stock) {
     if err!=nil {
         logger.Println("set hold stock deal list serialize error: ",err)
     } else {
-        client.Set(key, string(s), 75*time.Hour)
+        client.Set(ctx, key, string(s), 75*time.Hour)
     }
 	return
 }
@@ -58,7 +58,7 @@ func getHoldLastDeal() (stocks []Stock) {
 func getPositionStats()(holds Holds) {
 	//先尝试从redis中抓取持仓股票的最新交易记录，如果不成，再查数据库！
 	key:="stock:hold:stats"
-	val, err := client.Get(key).Result()
+	val, err := client.Get(ctx, key).Result()
 	if err == nil {
 		json.Unmarshal([]byte(val),&holds)
 		return
@@ -96,7 +96,7 @@ func getPositionStats()(holds Holds) {
     if err!=nil {
         logger.Println("set hold stock deal list serialize error: ",err)
     } else {
-        client.Set(key, string(s), 75*time.Hour)
+        client.Set(ctx, key, string(s), 75*time.Hour)
     }
 	return
 }

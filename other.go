@@ -14,7 +14,7 @@ import (
 func getDealList(code string) (stocks []Stock) {
 	//先尝试从redis中抓取持仓股票的最新交易记录，如果不成，再查数据库！
 	key:=fmt.Sprintf("stock:deal:list:%s",code)
-	val, err := client.Get(key).Result()
+	val, err := client.Get(ctx, key).Result()
 	if err == nil {
 		json.Unmarshal([]byte(val),&stocks)
 		return
@@ -41,7 +41,7 @@ func getDealList(code string) (stocks []Stock) {
 		errinfo:=fmt.Sprintf("set stock deals of %s serialize error: %s",code,err)
         logger.Println(errinfo)
     } else {
-        client.Set(key, string(s), 75*time.Hour)
+        client.Set(ctx, key, string(s), 75*time.Hour)
     }
 	return
 }
